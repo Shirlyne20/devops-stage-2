@@ -1,20 +1,15 @@
-# Use the latest official Python image as a base
-FROM python:latest
+FROM python:3.11
 
-# Install Poetry using pip
-RUN pip install poetry uvicorn
+RUN pip install poetry
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the application files
+COPY pyproject.toml poetry.lock ./
+
+RUN poetry install --no-root
+
 COPY . .
 
-# Install dependencies using Poetry
-RUN poetry install
+ENV PYTHONPATH=/app
 
-# Expose the port FastAPI runs on
-EXPOSE 80
-
-# Run the prestart script and start the server
-CMD ["sh", "-c", "poetry run bash ./prestart.sh && poetry run uvicorn app.main:app --host 0.0.0.0 --port 80 --reload"]
+CMD poetry run bash ./prestart.sh; poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000
